@@ -1,0 +1,12 @@
+# 只跟踪公开副本，不纳入编辑环境或工作缓存。
+.DS_Store
+.AppleDouble/
+.env
+.env.*
+*.log
+__pycache__/
+*.pyc
+.obsidian/
+内部管理/
+暂存/
+审核记录/
