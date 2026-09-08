@@ -1,0 +1,46 @@
+{
+  "schema_version": "2.1",
+  "scene_id": "DEMO-S01",
+  "profile": "continuity",
+  "projection_mode": "dialogue_autocut",
+  "scene_global_master": "16:9横屏构图，日间维修室，真实真人摄影，导演风格采用克制的工业纪实观察；镜头偏好手持镜头特写和近景。无任何中景 远景。对白或动作推进时，允许Seedance根据当前行动者、说话者、听者反应、人物关系和动作因果，自主决定全部运镜、景别变化、切镜数量与切换时点；不规定固定机位、镜头路径、人物画面占比或逐句镜头，只禁止退回展示完整空间和多人站位的空间全景。非切镜情况下环境不跳变。无字幕，无音乐，Schneider Hollywood Black Magic 1/8，高端动作概念片，电影级广告级画质，广告级商业调色，画面通透明亮、层次分明，色彩饱和自然不发灰，高光与材质光泽锐利。",
+  "source": {"path": "examples/source-scene.md", "status": "已确认的工具演示"},
+  "creative_locks": {"dialogue_and_event_order": "preserve", "forbidden_inventions": []},
+  "initial_state": {
+    "scene": {"location": "维修室", "phase": 0},
+    "characters": {
+      "林岚": {
+        "present": true,
+        "visible": true,
+        "emotion": "平静专注",
+        "position": "控制台操作侧",
+        "posture": "站立",
+        "facing": "急停开关",
+        "hands": "右手停在急停开关上方",
+        "contact": null,
+        "injury": null,
+        "knowledge": []
+      }
+    },
+    "systems": {"升降平台": {"state": "下降中"}}
+  },
+  "blocks": [
+    {
+      "id": "DEMO-S01-01",
+      "special_rules": ["全程无台词", "不生成旁白或画外人声。"],
+      "events": [
+        {
+          "id": "E01",
+          "visible_action": "林岚按下急停开关，升降平台因此停止下降。",
+          "preconditions": [{"path": "systems.升降平台.state", "equals": "下降中"}],
+          "effects": [
+            {"path": "systems.升降平台.state", "set": "已停止"},
+            {"path": "characters.林岚.hands", "set": "右手按住急停开关"},
+            {"path": "characters.林岚.contact", "set": "右手接触急停开关"},
+            {"path": "scene.phase", "set": 1}
+          ]
+        }
+      ]
+    }
+  ]
+}

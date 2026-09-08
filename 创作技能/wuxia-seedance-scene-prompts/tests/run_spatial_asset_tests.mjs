@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import os from 'node:os';
+import crypto from 'node:crypto';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+import {spatialTextDiagnostics,spatialProjectionDiagnostics} from '../scripts/spatial_realization.mjs';
+import {projectCharacterSpatialState,promptRealizationDiagnostics} from '../scripts/prompt_realization.mjs';
+import {validateAssetUploadMode} from '../scripts/asset_upload_contract.mjs';
+const dir=fs.mkdtempSync(path.join(os.tmpdir(),'seedance-spatial-assets-'));
+const skill=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+let count=0;const test=(name,fn)=>{fn();count++;console.log('PASS: '+name);};
+const state={characters:{甲:{visible:true,position:'粗管靠平台的一侧',posture:'屈膝低身',facing:'粗管下方通向坡道的通路',hands:'右手持手枪，枪口朝下',contact:'左手扶粗管'},乙:{visible:true,position:'粗管靠坡道的一侧',posture:'站立',facing:'甲',hands:null,contact:null},远端:{visible:false,position:'通讯端',posture:'未呈现',facing:'未呈现'}}};
+const stage=Object.entries(state.characters).map(([name,s])=>projectCharacterSpatialState(name,s)).join('');
+const prompt=(start=stage,end=stage)=>`特殊规则：全程无台词。\n\n特殊规则：不生成旁白或画外人声。\n\n开始空间运动状态：${start}\n\n甲保持屈膝低身。\n\n结束空间运动状态：${end}`;
+try{
+ test('full projector preserves owner-bound facts including comma-separated grip',()=>assert.deepEqual(spatialProjectionDiagnostics(prompt(),{startState:state,endState:state}),[]));
+ test('both hands available cannot coexist with active hand support',()=>{const st=structuredClone(state);st.characters.甲.hands='双手空出';const p=prompt(Object.entries(st.characters).map(([n,c])=>projectCharacterSpatialState(n,c)).join(''));assert.ok(spatialProjectionDiagnostics(p,{startState:st}).some(x=>x.startsWith('SPATIAL_HAND_RESOURCE_CONFLICT')));});
+ test('unarmed is compatible with left hand support',()=>{const st=structuredClone(state);st.characters.甲.hands='右手无持物，左掌扶管';const p=prompt(Object.entries(st.characters).map(([n,c])=>projectCharacterSpatialState(n,c)).join(''));assert.deepEqual(spatialProjectionDiagnostics(p,{startState:st}),[]);});
+ test('summary plus facing loses position posture grip and contact',()=>{const d=spatialProjectionDiagnostics(prompt('维修夹层后部。甲的头部朝向粗管下方通向坡道的通路。乙的头部朝向甲。'),{startState:state});for(const field of ['position','posture','hands','contact'])assert.ok(d.some(x=>x.includes('甲.'+field)));});
+ test('same position assigned to a different actor does not satisfy owner',()=>{const p=prompt(stage.replace('甲位于粗管靠平台的一侧','甲位于粗管靠坡道的一侧').replace('乙位于粗管靠坡道的一侧','乙位于粗管靠平台的一侧'));assert.ok(spatialProjectionDiagnostics(p,{startState:state}).some(x=>x.includes('甲.position')));});
+ test('vague route and future gun pickup are both diagnosed',()=>{const d=spatialTextDiagnostics(prompt('甲将取枪，甲的头部朝向当前可行通路。'));assert.ok(d.some(x=>x.startsWith('SPATIAL_TARGET_UNRESOLVED')));assert.ok(d.some(x=>x.startsWith('SPATIAL_FUTURE_ACTION')));});
+ test('physical named route without facility number is valid',()=>assert.deepEqual(spatialTextDiagnostics(prompt()),[]));
+ test('quoted dialogue and event future wording do not alter boundary checks',()=>assert.deepEqual(spatialTextDiagnostics(prompt().replace('甲保持屈膝低身。','甲（对乙）说：“我将取枪。”')),[]));
+ test('shared final-text gate detects state omission',()=>assert.ok(promptRealizationDiagnostics(prompt('甲的头部朝向粗管下方通向坡道的通路。'),{startState:state}).some(x=>x.startsWith('SPATIAL_STATE_NOT_PROJECTED'))));
+ const evidence=path.join(dir,'handoff.json');const source={rows:[{baseline_ref:'T01',decision:'TEXT_ONLY',scenes:['地图']}]};fs.writeFileSync(evidence,JSON.stringify(source));
+ const basis={path:evidence,sha256:crypto.createHash('sha256').update(fs.readFileSync(evidence)).digest('hex'),baseline_ref:'T01',decision:'TEXT_ONLY'};
+ const unit={asset_mode:'TEXT_ONLY',asset_basis:basis,assets:[],required_assets:[]};
+ test('source-hashed explicit TEXT_ONLY permits no images',()=>assert.equal(validateAssetUploadMode(unit).asset_mode,'TEXT_ONLY'));
+ test('empty uploads without decision fail',()=>assert.throws(()=>validateAssetUploadMode({assets:[],required_assets:[]}),/ASSET_LIST_EMPTY/));
+ test('required visible reference blocks TEXT_ONLY',()=>assert.throws(()=>validateAssetUploadMode({...unit,required_assets:[{id:'required'}]}),/TEXT_ONLY_ASSET_CONFLICT/));
+ test('metadata without source evidence fails',()=>assert.throws(()=>validateAssetUploadMode({...unit,asset_basis:{decision:'TEXT_ONLY'}}),/TEXT_ONLY_EVIDENCE_REQUIRED/));
+ test('stale source hash fails',()=>assert.throws(()=>validateAssetUploadMode({...unit,asset_basis:{...basis,sha256:'0'.repeat(64)}}),/TEXT_ONLY_SOURCE_STALE/));
+ test('wrong source row fails',()=>assert.throws(()=>validateAssetUploadMode({...unit,asset_basis:{...basis,baseline_ref:'T02'}}),/TEXT_ONLY_SOURCE_DECISION_MISMATCH/));
+ test('style-only filler fails in both explicit role and known filename',()=>{for(const asset of [{path:'/a/reference.jpg',role:'style_only'},{path:'/a/室内风格污染基准.jpg'}])assert.throws(()=>validateAssetUploadMode({assets:[asset]}),/STYLE_ONLY_UPLOAD_FORBIDDEN/);});
+ test('duplicate row is ambiguous evidence',()=>{fs.writeFileSync(evidence,JSON.stringify({rows:[source.rows[0],source.rows[0]]}));const sha256=crypto.createHash('sha256').update(fs.readFileSync(evidence)).digest('hex');assert.throws(()=>validateAssetUploadMode({...unit,asset_basis:{...basis,sha256}}),/TEXT_ONLY_SOURCE_DECISION_MISMATCH/);fs.writeFileSync(evidence,JSON.stringify(source));});
+ test('ordinary HTML renders no path-copy control and preserves exact prompt',()=>{const input=path.join(dir,'delivery.json'),output=path.join(dir,'delivery.html');fs.writeFileSync(input,JSON.stringify({title:'Test',asset_coverage_contract:'required-assets-v1',blocks:[{...unit,id:'TEST',duration_status:'未实测',prompt:prompt(),start_state:state,end_state:state}]}));const r=spawnSync(process.execPath,[path.join(skill,'scripts/render_prompt_delivery_html.mjs'),input,'--output',output],{encoding:'utf8'});assert.equal(r.status,0,r.stderr);const html=fs.readFileSync(output,'utf8');assert.match(html,/TEXT_ONLY · 无需上传图片/);assert.doesNotMatch(html,/data-copy="asset-paths-/);assert.ok(html.includes(prompt()));});
+ test('ordinary renderer rejects lossy projection before writing',()=>{const input=path.join(dir,'bad.json'),output=path.join(dir,'bad.html');fs.writeFileSync(input,JSON.stringify({title:'Test',blocks:[{...unit,id:'BAD',duration_status:'未实测',prompt:prompt('甲的头部朝向粗管下方通向坡道的通路。'),start_state:state}]}));const r=spawnSync(process.execPath,[path.join(skill,'scripts/render_prompt_delivery_html.mjs'),input,'--output',output],{encoding:'utf8'});assert.notEqual(r.status,0);assert.match(r.stderr,/SPATIAL_STATE_NOT_PROJECTED/);assert.ok(!fs.existsSync(output));});
+ console.log(`OK: ${count} spatial/asset regression tests passed`);
+}finally{fs.rmSync(dir,{recursive:true,force:true});}

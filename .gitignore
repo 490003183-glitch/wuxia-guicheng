@@ -10,3 +10,5 @@ __pycache__/
 内部管理/
 暂存/
 审核记录/
+node_modules/
+reader-demo/
