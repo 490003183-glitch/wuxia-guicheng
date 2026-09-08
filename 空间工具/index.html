@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="zh-CN" data-visualize-standalone>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+<title>雾峡轨城全局空间基准 · 公开版</title>
+<style>:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 14px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans: -apple-system, system-ui, "Segoe UI", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 430;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 10px);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 1.6);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  font-size: var(--font-size-normal);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: pointer;
+  font-weight: var(--font-weight-medium, 500);
+  text-decoration: none;
+  text-underline-offset: 2px;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+h3,
+h4,
+h5,
+h6 {
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.3;
+}
+
+b,
+strong,
+th {
+  font-weight: var(--font-weight-medium);
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead th {
+  padding-block: 8px;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 16%, transparent);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 6px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+#widget > :not(.card, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--popover-foreground);
+  background: var(--popover);
+  box-shadow: none;
+  font-size: var(--font-size-tooltip);
+  line-height: var(--line-height-tooltip);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  color: var(--accent-foreground);
+  background: var(--accent);
+  font-weight: var(--font-weight-medium);
+}
+
+small,
+.text-small,
+.viz-badge {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover,
+.nav-link:not(:disabled):not([aria-disabled="true"]):hover {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.btn-primary {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: padding-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: padding-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background: var(--secondary);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  padding: 0;
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control[type="file"]::file-selector-button {
+  min-height: 26px;
+  margin-right: 8px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: 28px;
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  min-height: 72px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-height: 28px;
+  margin: 0;
+  padding: 0 32px 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted-foreground) 50%),
+    linear-gradient(135deg, var(--muted-foreground) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-repeat: no-repeat;
+  background-size: 4px 4px;
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-select:focus-visible {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-check {
+  display: flex;
+  min-height: 20px;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  border-color: var(--input);
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background-color: var(--secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:checked {
+  border-color: var(--primary);
+  background-color: var(--primary);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+}
+
+.form-check-input[type="radio"] {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-full);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 2px solid var(--primary);
+  background:
+    radial-gradient(circle, var(--primary-foreground) 0 2.5px, transparent 3px),
+    var(--primary);
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--primary);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 28px;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  outline: none;
+  border: 0;
+  accent-color: var(--primary);
+  background: linear-gradient(
+      color-mix(in srgb, var(--foreground) 7%, transparent),
+      color-mix(in srgb, var(--foreground) 7%, transparent)
+    )
+    center / 100% 2px no-repeat;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-webkit-slider-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range::-moz-range-track {
+  height: 28px;
+  background: transparent;
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  background: light-dark(var(--primary-foreground), var(--foreground));
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  border-color: var(--ring);
+  box-shadow: inset 0 0 0 1px var(--ring);
+}
+
+.form-range:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed="true"],
+  [aria-selected="true"],
+  .is-selected
+) {
+  border-color: var(--primary);
+  color: var(--primary-foreground);
+  background: var(--primary);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, var(--font-size-normal));
+  }
+
+  .form-control[type="file"]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type="color"] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+
+  .form-range::-webkit-slider-runnable-track {
+    height: 44px;
+  }
+
+  .form-range::-moz-range-track {
+    height: 44px;
+  }
+
+  .form-range::-webkit-slider-thumb {
+    margin-top: 12px;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html>body{padding:0}</style>
+<style>html>body{padding:24px;box-sizing:border-box}#wxgc-space-r01{max-width:1280px;margin:0 auto}@media(max-width:600px){html>body{padding:12px}}</style></head>
+<body><p style="max-width:1280px;margin:0 auto 20px"><a href="ep31.html">查看 EP31 局部空间与行动时间</a> · 公开版工作规划 · <a href="README.md">使用说明与许可</a></p>
+<div id="wxgc-space-r01">
+  <h2>雾峡轨城 · 巨型筒城空间规划 · 公开版</h2>
+  <div class="viz-row text-small">外径约128公里 · 筒深80公里 · 内壁展开周长约377公里</div>
+  <div class="viz-controls">
+    <label class="form-label">观察范围<select class="form-select" id="wx-view"><option value="city">全城</option><option value="story">主线活动片区</option><option value="ep31">EP31逃亡片区</option></select></label>
+    <label class="form-label">剧情路线<select class="form-select" id="wx-ep"><option value="0">全部地点</option></select></label>
+    <label class="form-check"><input class="form-check-input" id="wx-cut" type="checkbox" checked><span class="form-check-label">剖开外壳</span></label>
+    <label class="form-check"><input class="form-check-input" id="wx-explode" type="checkbox"><span class="form-check-label">拉开层间距</span></label>
+  </div>
+  <svg id="wx-map" role="img" aria-label="可旋转的雾峡轨城筒体模型；城市沿内壁向转轴生长。地点均使用本轮规划坐标。"></svg>
+  <div class="viz-row text-small" id="wx-legend"><span>拖动旋转</span><span>滚轮缩放</span><span>点击地点查看</span><span>尺寸与坐标为本轮提案</span></div>
+  <div class="viz-controls">
+    <label class="form-label">地点<select class="form-select" id="wx-scene"></select></label>
+    <button type="button" class="btn" id="wx-focus">定位到此处</button>
+    <button type="button" class="btn" id="wx-reset">恢复当前视角</button>
+  </div>
+  <div id="wx-detail" class="card" aria-live="polite"></div>
+  <div id="wx-lanes" class="viz-row text-small"></div>
+  
+</div>
+<style>
+#wxgc-space-r01{color:var(--foreground);width:100%}
+#wxgc-space-r01 #wx-map{width:100%;display:block;touch-action:none;cursor:grab;overflow:hidden}
+#wxgc-space-r01 #wx-map:active{cursor:grabbing}
+#wxgc-space-r01 #wx-detail{margin-top:12px}
+#wxgc-space-r01 #wx-lanes{margin-top:12px}
+#wxgc-space-r01 .wx-linekey{display:inline-block;width:20px;height:3px;vertical-align:middle;margin-right:6px}
+#wxgc-space-r01 #wx-reference{width:100%;max-width:640px;display:block;margin-top:12px}
+#wxgc-space-r01 details{margin-top:14px}
+#wxgc-space-r01 svg text{fill:var(--foreground);font-size:12px}
+#wxgc-space-r01 .wx-zone-label{fill:var(--muted-foreground)}
+#wxgc-space-r01 .wx-unseen{stroke-dasharray:4 4}
+</style>
+<script type="application/json" id="wx-data">{"version":"WXGC-SPACE-PUBLIC-R03","geometry":{"innerWallRadiusKm":60,"outerShellRadiusKm":64,"lengthKm":80,"clearCoreRadiusKm":30,"coordinateStatus":"R03巨型筒城工作比例；用户要求扩大后的新提案。局部街区距离单独保持，非全图等比放大。"},"scenes":[{"id":"S01","name":"步小蛮公寓","zone":"中层生活","a":0.563758,"r":51.05,"z":-17.6,"kind":"既有","detail":"2470中层住宅；客厅、Loft卧室、阳台、门外走廊为同一住所的子空间。与2026公寓分开。","physical":true,"eps":[1,2,3,5,6,19,20,21]},{"id":"S02","name":"三号商业连廊与咖啡区","zone":"中层生活","a":0.234899,"r":51.0,"z":-17.8,"kind":"既有","detail":"咖啡区就在三号连廊旁；巡检、导引故障和初次招募沿这片公共空间展开。","physical":true,"eps":[1]},{"id":"S03","name":"行政大厅与初筛区","zone":"白塔","a":0.0,"r":50.95,"z":-17.88,"kind":"既有","detail":"登记、面谈、逻辑和体能初筛纳入同一行政综合体；测试区是内部子区。","physical":true,"eps":[2]},{"id":"S04","name":"机甲展示馆","zone":"训练","a":-0.187919,"r":50.98,"z":-18.1,"kind":"既有","detail":"从行政大厅取得训练区通行后进入；展示馆与后来的深层雾蛟接入区不是同一个大厅。","physical":true,"eps":[2]},{"id":"S05","name":"基础格斗与机动训练区","zone":"训练","a":-0.563758,"r":50.99,"z":-18.55,"kind":"既有","detail":"格斗垫、机械假人、反应光格及双层机动路线组成相邻训练单元。","physical":true,"eps":[3,4,6]},{"id":"S06","name":"03号枪械基础训练室","zone":"训练","a":-0.601342,"r":51.0,"z":-18.62,"kind":"既有","detail":"安排在训练综合体内部封闭防护层，与格斗区经内廊相连。","physical":true,"eps":[4]},{"id":"S07","name":"高层连廊接人点","zone":"中层生活","a":0.394631,"r":50.73,"z":-17.5,"kind":"既有","detail":"EP05罗小雨接步小蛮的夜间连廊；不能因名字高层就认定等于白塔最高行政层。","physical":true,"eps":[5]},{"id":"S08","name":"罗小雨住处","zone":"中层生活","a":0.451007,"r":50.8,"z":-17.33,"kind":"既有","detail":"家门、玄关、卧室属于同一处；拟安排在步小蛮住宅相邻的生活分区。","physical":true,"eps":[5]},{"id":"S09","name":"底层旧街与青藤居早期入口","zone":"底层旧街","a":1.127517,"r":59.4,"z":-19.1,"kind":"既有","detail":"EP05寻找的数家同名店铺仍各自存在；本节点固定真正进入异常空间的早期入口。其与VI号安全屋不合并。","physical":true,"eps":[5,8,10]},{"id":"S10","name":"青藤居早期内部","zone":"异常空间","a":1.127517,"r":59.4,"z":-19.1,"kind":"既有","detail":"茶室、窄廊、隔门校准、罗小雨与凌砚到访的早期内部；挂接S09，单独展开，不据此推算普通建筑外壳尺寸。","physical":false,"eps":[5,8,10]},{"id":"S11","name":"循环井与事故检修桥","zone":"工业维护","a":-0.09396,"r":56.8,"z":-18.72,"kind":"既有","detail":"EP06桥横跨循环井，桥端连窄平台，上下还有维护层与正常交通；独立于EP18校准平台、EP28藏身处。","physical":true,"eps":[6]},{"id":"S12","name":"远离训练中心的夜谈轻食店","zone":"中层生活","a":1.409396,"r":51.0,"z":-17.34,"kind":"既有","detail":"间章《记录之外》的商业广场边缘轻食店；保留与训练中心较远的关系。","physical":true,"eps":[]},{"id":"S13","name":"综合实战与VR训练区","zone":"训练","a":-0.638926,"r":51.01,"z":-18.45,"kind":"既有","detail":"EP07的假人、训练弹和VR接口三块区域位于同一训练设施。模拟街区不占据一块真实城区。","physical":true,"eps":[7]},{"id":"S14","name":"匿名观察端","zone":"未定位","a":0,"r":0,"z":0,"kind":"既有","detail":"EP07只确认观察端存在；界面窗口不反推出观察者身份和所在房间。","physical":false,"eps":[7]},{"id":"S15","name":"雾蛟室内接入与承重槽区","zone":"训练","a":-0.751678,"r":51.05,"z":-18.65,"kind":"既有","detail":"EP09首次适配、EP17装载及EP26接入纳入同一设施的连续升级状态。","physical":true,"eps":[9,11,17,18,26,31]},{"id":"S16","name":"雾蛟室外测试坪","zone":"训练","a":-0.779866,"r":51.09,"z":-18.86,"kind":"既有","detail":"接入大厅大门直接连接测试坪，保留步距线、锁地槽、终止线与缓冲区。EP26扩展空域不是把测试坪放大。","physical":true,"eps":[17,18]},{"id":"S17","name":"中层室内巡逻与颈环事件区","zone":"中层生活","a":0.328859,"r":51.0,"z":-17.7,"kind":"既有","detail":"EP11的商业室内巡逻段，在三号连廊所属商业网络中；具体店铺和柱体不等同咖啡区。","physical":true,"eps":[11]},{"id":"S18","name":"白塔高层会议与决策区","zone":"白塔","a":0.0,"r":40.0,"z":-17.92,"kind":"既有","detail":"EP12会议及EP28、EP30高层决策安排在同一行政层的不同房间，互相经受控内廊连接。 R03安排在约r=40公里的高层，底层至此由快速径向交通连接。","physical":true,"eps":[10,12,28,30]},{"id":"S19","name":"外勤异常复核室与医疗外廊","zone":"白塔","a":0.018792,"r":40.35,"z":-17.6,"kind":"既有","detail":"EP13身体检查；复核室门外廊与高层图腾平台有同层支廊连接，不让人物凭空跨层。","physical":true,"eps":[13,15]},{"id":"S20","name":"任务复盘室","zone":"白塔","a":0.037584,"r":40.2,"z":-17.88,"kind":"既有","detail":"EP14罗小雨追问权限的无窗复盘室，安排在决策区外侧的受控办公层。","physical":true,"eps":[14]},{"id":"S21","name":"高层图腾平台","zone":"高层平台","a":0.206711,"r":40.35,"z":-17.58,"kind":"既有","detail":"圆形石台、东西守卫雕像、中央图腾、休息区归并为一个场地；白塔从侧方可见。","physical":true,"eps":[15]},{"id":"S22","name":"闻绍衡高层办公室","zone":"白塔","a":-0.065772,"r":40.05,"z":-18.18,"kind":"既有","detail":"EP16雾面玻璃内部碰头；靠近高层办公网，不与会议室合成一间。","physical":true,"eps":[16]},{"id":"S23","name":"外缘旧校准平台","zone":"外缘设施","a":7.516779,"r":59.93,"z":-16.1,"kind":"既有","detail":"EP18首次实战；独立旧设施，距主角当前旧运输街区较远。保留校准塔基座、断桥及下方维护井。","physical":true,"eps":[18]},{"id":"S24","name":"旧校准平台下方维护井","zone":"外缘设施","a":7.516779,"r":59.99,"z":-16.1,"kind":"既有","detail":"与S23垂直相邻的井道、爬梯及下方旧维护网；工程员逃入路径保持存在，不提前封死。","physical":true,"eps":[18]},{"id":"S25","name":"轻型载具分仓","zone":"训练","a":-0.892617,"r":50.8,"z":-18.95,"kind":"既有","detail":"EP19取还飞梭的仓库；与机甲训练综合体相邻，但有单独载具出入口。 依据EP19返程电梯下降至公寓的正文，分仓设在公寓略偏轴心的上方；返程向外下行约250米。","physical":true,"eps":[19]},{"id":"S26","name":"独立飞行走廊","zone":"交通空域","a":-1.315436,"r":51.3,"z":-19.4,"kind":"既有","detail":"具独立承重、检修距离和透明防护；与公共空轨物理隔离，轨道之间不设可误入的分岔。","physical":true,"eps":[19]},{"id":"S27","name":"公共空域与绕城航线","zone":"交通空域","a":-2.442953,"r":51.2,"z":-19.65,"kind":"既有","detail":"离开独立走廊后通过受控转换口进入公共空域；不穿越城市中心作为任意捷径。","physical":true,"eps":[19]},{"id":"S28","name":"维护平台上空安全区","zone":"交通空域","a":-3.57047,"r":51.6,"z":-19.8,"kind":"既有","detail":"EP19首次主动带飞梭瞬移；布置在公共空域的低流量维护支线，有数公里净空。 R03仍位于白塔片区的低流量维护空域，不把本次短程试飞当成绕完整个巨型筒体一周。","physical":true,"eps":[19]},{"id":"S29","name":"底层饼摊与升降井","zone":"底层旧街","a":2.067114,"r":59.52,"z":-17.75,"kind":"既有","detail":"EP21刺杀、EP22救援余波；三个图角度作为同场参考，精确升降井主几何暂以A图约束后续统一。","physical":true,"eps":[21,22,23]},{"id":"S30","name":"废弃风机舱","zone":"工业维护","a":2.442953,"r":59.76,"z":-17.98,"kind":"既有","detail":"岑牧负伤后可从饼摊方向经小型维护网抵达；失去常态公共照明，不等同没有维生传感器。","physical":true,"eps":[22]},{"id":"S31","name":"内环公共换乘层","zone":"公共交通","a":0.375839,"r":51.07,"z":-17.55,"kind":"既有","detail":"EP23横跨白塔内环的第一换乘层；设上行轿厢、交通舱与多高程封闭通道。","physical":true,"eps":[23,24,26,31]},{"id":"S32","name":"第二换乘厅与医疗上行轿厢","zone":"公共交通","a":0.150336,"r":45.3,"z":-17.58,"kind":"既有","detail":"经第二换乘厅再上行，接弧形长廊进入医疗区；访客必须绕行。","physical":true,"eps":[23,24]},{"id":"S33","name":"顾宁留观室","zone":"白塔","a":0.056376,"r":40.38,"z":-17.5,"kind":"既有","detail":"与S19同属上层医疗区但不同房间；无人机担架走封闭急救线直达，访客使用S31、S32。","physical":true,"eps":[22,23,24]},{"id":"S34","name":"青藤居VI号安全屋门面","zone":"底层旧街","a":1.597315,"r":59.45,"z":-18.65,"kind":"既有","detail":"EP24—28反复出现的同一安全屋外部入口；与早期青藤居入口保留为两处。","physical":true,"eps":[24,26,28]},{"id":"S35","name":"VI号茶室维修间与客房","zone":"异常空间","a":1.597315,"r":59.45,"z":-18.65,"kind":"既有","detail":"茶室维修区、窄廊、左右客房为同一内部组；门外尺寸不能约束异常纵深。人物仍需实际经过门和走廊。","physical":false,"eps":[24,25,27]},{"id":"S36","name":"VI号后院旧装卸场","zone":"底层旧街","a":1.616107,"r":59.47,"z":-18.72,"kind":"既有","detail":"EP25三面围墙、上压废弃轨道钢梁；后门连茶室。拟设为实际城市外部场地，不把对打放进无边异常空间。","physical":true,"eps":[25]},{"id":"S37","name":"室外训练空域与起降坪","zone":"训练","a":-1.014765,"r":50.97,"z":-19.02,"kind":"既有","detail":"EP26使用；从接入区另一个大门和起降架进入。地面测试坪与飞行净空相邻而不重叠。","physical":true,"eps":[26]},{"id":"S38","name":"圈圈藏身检修通道入口","zone":"旧运输","a":2.912752,"r":59.63,"z":-17.82,"kind":"既有","detail":"EP28从VI号安全屋穿过两条底层旧街抵达；入口、门和内部连贯。","physical":true,"eps":[28,29,30]},{"id":"S39","name":"维修夹层藏身内部","zone":"旧运输","a":2.91745,"r":59.635,"z":-17.82,"kind":"既有","detail":"EP28—30同一藏身处；EP30内外三联图属于同一检修门，不新增三处地点。","physical":true,"eps":[28,29,30,31]},{"id":"S40","name":"旧轨道桥下监听点","zone":"旧运输","a":3.006711,"r":59.67,"z":-17.9,"kind":"既有","detail":"桥上人行、桥下旧轨道床与监听异兽分层；距离藏身点几条街。","physical":true,"eps":[28]},{"id":"S41","name":"星落温雅集结与废弃运输出口","zone":"旧运输","a":3.194631,"r":59.7,"z":-18.05,"kind":"既有","detail":"EP28—29指挥和兽群出发组，连东侧两个旧运输口；不与白塔潜入者入口合并。","physical":true,"eps":[28,29]},{"id":"S42","name":"旧运输线入口与底层街口","zone":"旧运输","a":2.875168,"r":59.61,"z":-17.81,"kind":"既有","detail":"EP29出门后的街口；邻接维修夹层。","physical":true,"eps":[29,30]},{"id":"S43","name":"旧运输街区侧街战场","zone":"旧运输","a":2.818792,"r":59.58,"z":-17.8,"kind":"既有","detail":"EP30翻倒货车、双支路和机甲战斗；EP31仅用开头承接，不承包本集再次决战。","physical":true,"eps":[29,30,31]},{"id":"S44","name":"白塔外围抢修检查线","zone":"白塔维护","a":0.300671,"r":59.52,"z":-18.12,"kind":"既有","detail":"EP29潜入组混入抢修队的位置在白塔外围；旧运输街区的混乱造成此处警力分流，两者不直接共用一个路口。","physical":true,"eps":[29]},{"id":"S45","name":"白塔第一维护节点","zone":"白塔维护","a":0.225503,"r":59.33,"z":-18.14,"kind":"既有","detail":"从检查线旁维修门进入，经向内检修梯到达；后续通过维护主干线接闸门。","physical":true,"eps":[29,30]},{"id":"S46","name":"白塔机械维修闸门","zone":"白塔维护","a":0.112752,"r":59.1,"z":-18.18,"kind":"既有","detail":"EP30半扇门；开放和半闭是同一闸门状态。与旧运输战场保持数公里路程。","physical":true,"eps":[30]},{"id":"S47","name":"白塔深层受控通道","zone":"白塔维护","a":0.04698,"r":58.9,"z":-18.18,"kind":"既有","detail":"潜入者越闸后进入；深层指权限与结构深入，不等同接近旋转外缘。","physical":true,"eps":[30]},{"id":"S48","name":"高层联防节点","zone":"白塔","a":-0.14094,"r":40.15,"z":-18.25,"kind":"既有","detail":"叶澄在此获得临时权限；不推导隐藏行动与后续核心位置。","physical":true,"eps":[30]},{"id":"S49","name":"白塔紧急避难所群","zone":"白塔民生","a":0.187919,"r":59.15,"z":-17.3,"kind":"用户明确","detail":"本轮明确EP31居民已集中避难。巨型城市采用多片区分布式避难设施；此节点是当前故事所在白塔片区的避难所群，不代表整城居民都赶到同一处。","physical":true,"eps":[31]},{"id":"S50","name":"废弃货运分拣场","zone":"EP31新增","a":2.790604,"r":59.69,"z":-17.66,"kind":"本轮补齐","detail":"从S39维修后口，经短服务梯进入；塌棚、架空输送带、斜坡形成第一次运动战。与EP30街口不共用构图。","physical":true,"eps":[31]},{"id":"S51","name":"饼摊仓库","zone":"EP31新增","a":2.179866,"r":59.63,"z":-17.7,"kind":"用户明确","detail":"是乔昔长期使用的饼摊后方周转仓，不在摊车底下。前后双出口，乔昔熟路；斜坡和货运短梯接摊位所在网络。","physical":true,"eps":[31]},{"id":"S52","name":"外缘高重力维护道","zone":"EP31新增","a":2.020134,"r":59.93,"z":-17.45,"kind":"用户明确","detail":"经旧货运斜行升降台下行约250米，再走坡廊进入老维护层；这里仍在维生边界内，可以穿内衣呼吸和行走。","physical":true,"eps":[31]},{"id":"S53","name":"脱甲验证与弃甲岔口","zone":"EP31新增","a":1.973154,"r":59.95,"z":-17.5,"kind":"本轮补齐","detail":"两条可隔墙观察的维护支路。脱甲留在内侧岔口，人从侧道离开；靠机器人继续围甲确认，人物看不到追踪器原理。","physical":true,"eps":[31]},{"id":"S54","name":"L3接应凹间","zone":"EP31新增","a":1.916779,"r":59.94,"z":-17.5,"kind":"本轮补齐","detail":"弃甲点上方10米，借两折缓坡抵达的设备凹间；上方6米服务梯供林逸下行，凹间不与弃甲点直通视线。","physical":true,"eps":[31]},{"id":"S55","name":"蓄水池检修平台","zone":"EP31新增","a":1.766443,"r":59.91,"z":-17.53,"kind":"本轮补齐","detail":"接应点上方30米，沿折返坡廊接到双水槽平台；桥、池端绕行路、中央干燥隔带和泵房构成连续空间。","physical":true,"eps":[31]},{"id":"S56","name":"泵房与向内撤离道","zone":"EP31新增","a":1.691275,"r":59.89,"z":-17.45,"kind":"本轮补齐","detail":"从水槽右端绕行道进入泵房外墙后的维护路，再上行20米；章末仅进入返塔网络。","physical":true,"eps":[31]},{"id":"S57","name":"白塔生活区宣传片现场","zone":"中层生活","a":0.169128,"r":50.8,"z":-17.15,"kind":"既有","detail":"2471年序章地点；按已有生活区处理，时间状态单列，不拿未来画面证明2470年的受损状态。","physical":true,"eps":[]},{"id":"S58","name":"白塔核心移动保护范围","zone":"未定位","a":0,"r":0,"z":0,"kind":"既有","detail":"只归入白塔受控系统；核心位置受保护且可转移，规划不固定真舱坐标或公开秘密路径。","physical":false,"eps":[]}],"episodes":[{"ep":1,"title":"没事干的人","routes":[{"name":"生活与巡检","nodes":["S01","S02","S01"]}]},{"ep":2,"title":"通过","routes":[{"name":"初筛","nodes":["S01","S03","S04"]}]},{"ep":3,"title":"旧护甲","routes":[{"name":"训练与回家","nodes":["S01","S05","S01"]}]},{"ep":4,"title":"第一枪","routes":[{"name":"基础与射击","nodes":["S05","S06"]}]},{"ep":5,"title":"青藤居","routes":[{"name":"夜间接人","nodes":["S01","S07","S08"]},{"name":"次日下底层","nodes":["S08","S09","S10","S09","S01"]}]},{"ep":6,"title":"警报之前","routes":[{"name":"训练与现场复核","nodes":["S01","S05","S11"]}]},{"ep":7,"title":"最后一次训练","routes":[{"name":"综合训练","nodes":["S13"]},{"name":"观察端","nodes":["S14"]}]},{"ep":8,"title":"姐姐","routes":[{"name":"罗小雨","nodes":["S09","S10","S09"]}]},{"ep":9,"title":"雾蛟","routes":[{"name":"首次接入","nodes":["S15"]}]},{"ep":10,"title":"一个月","routes":[{"name":"凌砚夜访","nodes":["S18","S09","S10","S09","S18"]}]},{"ep":11,"title":"颈环","routes":[{"name":"临时改派","nodes":["S15","S17"]}]},{"ep":12,"title":"公开层","routes":[{"name":"高层会议","nodes":["S18"]}]},{"ep":13,"title":"不用赔","routes":[{"name":"复核","nodes":["S19"]}]},{"ep":14,"title":"特殊安全等级","routes":[{"name":"罗小雨复盘","nodes":["S20"]}]},{"ep":15,"title":"图腾没有亮","routes":[{"name":"检查后训练","nodes":["S19","S21"]}]},{"ep":16,"title":"雾面玻璃","routes":[{"name":"内部碰头","nodes":["S22"]}]},{"ep":17,"title":"离开承重槽","routes":[{"name":"装载与测试","nodes":["S15","S16","S15"]}]},{"ep":18,"title":"没有终止线","routes":[{"name":"雾蛟出击","nodes":["S15","S16","S23"]},{"name":"工程员逃离","nodes":["S23","S24"]}]},{"ep":19,"title":"一分钟","routes":[{"name":"步小蛮与欣藤","nodes":["S01","S25","S26","S27","S28","S26","S25","S01"]}]},{"ep":20,"title":"换班","routes":[{"name":"公寓内夜谈","nodes":["S01"]}]},{"ep":21,"title":"热饼","routes":[{"name":"早餐与刺杀","nodes":["S01","S29"]}]},{"ep":22,"title":"别回家","routes":[{"name":"现场救援","nodes":["S29"]},{"name":"顾宁急救","nodes":["S29","S33"]},{"name":"岑牧撤离","nodes":["S29","S30"]}]},{"ep":23,"title":"空房子","routes":[{"name":"访客路线","nodes":["S29","S31","S32","S33"]}]},{"ep":24,"title":"只住一晚","routes":[{"name":"去安全屋","nodes":["S33","S32","S31","S34","S35"]}]},{"ep":25,"title":"怕弄伤你","routes":[{"name":"晨间与对打","nodes":["S35","S36","S35"]}]},{"ep":26,"title":"断电以后","routes":[{"name":"去训练","nodes":["S34","S31","S15","S37","S15"]}]},{"ep":27,"title":"飞镖已经修好了","routes":[{"name":"维修间与客房","nodes":["S35"]}]},{"ep":28,"title":"它没戴颈环","routes":[{"name":"步小蛮与乔昔","nodes":["S34","S38","S39"]},{"name":"白塔","nodes":["S18"]},{"name":"源组织","nodes":["S41","S40"]}]},{"ep":29,"title":"信号到了","routes":[{"name":"步小蛮与乔昔","nodes":["S39","S38","S42"]},{"name":"星落温雅","nodes":["S41","S43"]},{"name":"潜入组","nodes":["S44","S45"]}]},{"ep":30,"title":"半扇门","routes":[{"name":"步小蛮撤离","nodes":["S42","S43","S38","S39"]},{"name":"潜入组与白塔","nodes":["S45","S46","S47"]},{"name":"权限决策","nodes":["S18","S48"]}]},{"ep":31,"title":"先别管了","routes":[{"name":"步小蛮乔昔圈圈","nodes":["S39","S50","S51","S52","S53","S54","S55","S56"]},{"name":"林逸送甲","nodes":["S15","S31","S54","S55","S56"]},{"name":"星落温雅","nodes":["S43","S55"]},{"name":"居民避难状态","nodes":["S49"]}]}],"sectors":[{"name":"白塔、旧城与主线片区","a":0},{"name":"东部生活、制造与物流","a":30},{"name":"重工业与设备修复","a":60},{"name":"外缘校准与能源接口","a":90},{"name":"农业与食物处理","a":120},{"name":"中层住宅与社区","a":150},{"name":"住宅及公共商业","a":180},{"name":"水气循环与回收","a":210},{"name":"轨道残骸拼接与对接港","a":240},{"name":"仓储与物流","a":270},{"name":"小型制造与修造","a":300},{"name":"外围训练与低流量空域","a":330}],"status":"公开版工作空间参考；坐标、路线及时间不是已确认正式设定。"}</script><script>// Copyright (c) 2026 mtgh. LicenseRef-mtgh-Noncommercial-1.0; see LICENSE-TOOLS at repository root.
+
+(()=>{
+  const root=document.getElementById('wxgc-space-r01');
+  const D=JSON.parse(document.getElementById('wx-data').textContent);
+  const $=s=>root.querySelector(s), map=$('#wx-map'), sel=$('#wx-scene');
+  const NS='http://www.w3.org/2000/svg', by=Object.fromEntries(D.scenes.map(s=>[s.id,s]));
+  const series=['var(--viz-series-1)','var(--viz-series-2)','var(--viz-series-3)','var(--viz-series-4)'];
+  let W=736,H=490,yaw=.52,pitch=.36,scale=32,zoom=1,focus=[0,0,0],active='S55',ep=31,mode='city',drag=null,dirty=false;
+  let hit=[];
+  const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const rad=a=>a*Math.PI/180;
+  function rShow(r){return $('#wx-explode').checked ? 51+(r-51)*1.3 : r;}
+  function xyz(a,r,z){r=rShow(r);return [Math.sin(rad(a))*r,Math.cos(rad(a))*r,z];}
+  function project(v){let x=v[0]-focus[0],y=v[1]-focus[1],z=v[2]-focus[2];let xx=x*Math.cos(yaw)+z*Math.sin(yaw),zz=-x*Math.sin(yaw)+z*Math.cos(yaw);return [W/2+xx*scale*zoom,H/2-(y*Math.cos(pitch)-zz*Math.sin(pitch))*scale*zoom,y*Math.sin(pitch)+zz*Math.cos(pitch)];}
+  function point(s){return project(xyz(s.a,s.r,s.z));}
+  function el(tag,attrs={},text){const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);if(text!==undefined)e.textContent=text;return e;}
+  function poly(vertices,fill,stroke,opacity=.3,width=1){const p=vertices.map(project);return {depth:p.reduce((n,a)=>n+a[2],0)/p.length,node:el('polygon',{points:p.map(v=>v[0].toFixed(1)+','+v[1].toFixed(1)).join(' '),fill,stroke,'fill-opacity':opacity,'stroke-opacity':.4,'stroke-width':width})};}
+  function segment(vertices,stroke,width=1,dash='',alpha=1){const p=vertices.map(project);return el('polyline',{points:p.map(v=>v[0].toFixed(1)+','+v[1].toFixed(1)).join(' '),fill:'none',stroke,'stroke-width':width,'stroke-dasharray':dash,opacity:alpha,'stroke-linejoin':'round','stroke-linecap':'round'});}
+  function arc(a1,a2,r,z){const list=[];for(let a=a1;a<=a2+.001;a+=Math.max(.3,(a2-a1)/45))list.push(xyz(a,r,z));list.push(xyz(a2,r,z));return list;}
+  function box(a,r,z,da,dr,dz,col,faces){const vs=[];for(let k=0;k<2;k++)for(let j=0;j<2;j++)for(let i=0;i<2;i++)vs.push(xyz(a+(i?da:-da)/2,r+(j?dr:-dr)/2,z+(k?dz:-dz)/2));for(const idx of [[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]])faces.push(poly(idx.map(i=>vs[i]),col,'var(--border)',.22,.6));}
+  function routePath(a,b){const list=[xyz(a.a,a.r,a.z)];let diff=((b.a-a.a+180)%360+360)%360-180;for(let i=1;i<=12;i++)list.push(xyz(a.a+diff*i/12,a.r,a.z));list.push(xyz(b.a,b.r,a.z),xyz(b.a,b.r,b.z));return list;}
+  function setView(){zoom=1;if(mode==='city'){focus=[0,0,0];yaw=.52;pitch=.36;scale=Math.min(W/171,H/154);}else if(mode==='story'){focus=xyz(1.2,50,-18);yaw=-.05;pitch=.60;scale=Math.min(W/17,H/23);}else{focus=xyz(2.36,59.65,-17.7);yaw=-.04;pitch=.90;scale=Math.min(W/2.5,H/1.65);}draw();}
+  function draw(){
+    dirty=false;map.replaceChildren();map.setAttribute('viewBox',`0 0 ${W} ${H}`);map.style.height=H+'px';
+    const title=el('title',{},'雾峡轨城的滚筒内壁、朝轴心生长的建筑、分层地点与逐集路线');map.append(title);
+    const defs=el('defs');const clip=el('clipPath',{id:'wx-map-clip'});clip.append(el('rect',{x:0,y:0,width:W,height:H}));defs.append(clip);map.append(defs);const world=el('g',{'clip-path':'url(#wx-map-clip)'});map.append(world);
+    const faces=[],cut=$('#wx-cut').checked, start=mode==='city'?0:-4,end=mode==='city'?360:12;
+    const shellR=64,wallR=60,z0=mode==='city'?-40:-20.7,z1=mode==='city'?40:-15.5,stepA=mode==='city'?6:.5;
+    for(let a=start;a<end;a+=stepA){const aa=a+stepA;const front=project(xyz(a+stepA/2,shellR,0))[2]>0;if(!cut||!front){faces.push(poly([xyz(a,shellR,z0),xyz(aa,shellR,z0),xyz(aa,shellR,z1),xyz(a,shellR,z1)],'var(--muted)','var(--border)',.23));}
+      if(!cut||!front)for(const z of [z0,z1])faces.push(poly([xyz(a,wallR,z),xyz(aa,wallR,z),xyz(aa,shellR,z),xyz(a,shellR,z)],'var(--muted)','var(--border)',.32));
+    }
+    if(mode==='city'){
+      for(let a=0;a<360;a+=8){for(let zi=0;zi<5;zi++){const z=-32+zi*16;const height=8+((a*13+zi*7)%12);box(a,wallR-height/2,z,4,height,6,'var(--muted)',faces);}}
+      box(0,49.75,-17.92,.25,19.5,.45,'var(--viz-series-1)',faces);
+    }else{
+      // Local blocks retain human/streetscale. The shell is large, the doors are not.
+      for(let a=start;a<end;a+=.5)for(let zi=0;zi<4;zi++){const z=-20+zi*1.25;const h=.6+((Math.round(a*100+400)*13+zi*7)%11)/10;box(a,60-h/2,z,.25,h,.48,'var(--muted)',faces);}
+      box(0,49.75,-17.92,.16,19.5,.22,'var(--viz-series-1)',faces);
+      for(const r of [40,45.3,51,56.8])for(let a=start;a<end;a+=1)box(a,r,-18,.6,.05,2.8,'var(--muted)',faces);
+    }
+    faces.sort((a,b)=>a.depth-b.depth).forEach(f=>world.append(f.node));
+    for(const r of [40,51,59.5,60])for(const z of [z0,z1])world.append(segment(arc(start,end,r,z),'var(--border)',1,'',.65));
+    for(let a=start;a<=end;a+=mode==='city'?30:2){for(const z of [z0,z1])world.append(segment([xyz(a,30,z),xyz(a,64,z)],'var(--border)',1,'',.55));world.append(segment([xyz(a,60,z0),xyz(a,60,z1)],'var(--border)',1,'',.55));}
+    if(mode==='city'){
+      world.append(segment([[0,0,-48],[0,0,48]],'var(--muted-foreground)',1.5,'6 5',.8));
+      const p=project([0,0,30]);world.append(el('text',{x:p[0]+8,y:p[1]},'转轴 / 中央大空腔'));
+      for(const [a,name]of [[75,'校准与能源区'],[135,'农业与居住区'],[205,'循环与回收区'],[270,'物流与仓储区']]){
+        const p=project(xyz(a,61,12));world.append(el('text',{x:Math.min(W-120,Math.max(8,p[0])),y:Math.max(18,Math.min(H-15,p[1])),'class':'wx-zone-label'},name));
+      }
+      const pp=point(by.S18);world.append(el('text',{x:Math.min(W-130,Math.max(8,pp[0]-30)),y:pp[1]-16,'paint-order':'stroke',stroke:'var(--background)','stroke-width':4},'白塔主线片区 ↗'));
+    }
+    const barKm=mode==='city'?20:mode==='story'?5:.5;
+    const barPx=barKm*scale*zoom;
+    if(barPx<W*.75){world.append(el('path',{d:`M18 ${H-30} v5 h${barPx} v-5`,stroke:'var(--foreground)',fill:'none','stroke-width':1.5}));world.append(el('text',{x:18,y:H-36},barKm+' 公里'))}
+    const episode=D.episodes.find(e=>e.ep===ep),routes=episode?.routes||[],inEp=new Set(routes.flatMap(r=>r.nodes));
+    routes.forEach((r,ri)=>{for(let i=1;i<r.nodes.length;i++){const a=by[r.nodes[i-1]],b=by[r.nodes[i]];if(!a.physical||!b.physical)continue;world.append(segment(routePath(a,b),series[ri%4],ri===0?3:2.2,ri===0?'':'7 4',.95));const aa=project(xyz(a.a,a.r,a.z)),bb=project(xyz(b.a,b.r,b.z));if(Math.hypot(aa[0]-bb[0],aa[1]-bb[1])>25){const tail=project(routePath(a,b).slice(-2)[0]);let dx=bb[0]-tail[0],dy=bb[1]-tail[1],n=Math.hypot(dx,dy)||1;dx/=n;dy/=n;world.append(el('path',{d:`M${bb[0]-dx*8-dy*4},${bb[1]-dy*8+dx*4} L${bb[0]},${bb[1]} L${bb[0]-dx*8+dy*4},${bb[1]-dy*8-dx*4}`,fill:'none',stroke:series[ri%4],'stroke-width':2}));}}});
+    hit=[];const labels=[];const important=new Set(mode==='city'?[]:mode==='story'?['S01','S18','S21','S29','S34','S43','S55','S15']:['S39','S50','S51','S52','S53','S54','S55','S56']);
+    const list=D.scenes.filter(s=>s.physical).map(s=>({s,p:point(s)})).sort((a,b)=>a.p[2]-b.p[2]);
+    for(const {s,p} of list){if(p[0]<-15||p[0]>W+15||p[1]<-15||p[1]>H+15)continue;const selected=s.id===active,relevant=!ep||inEp.has(s.id),color=selected?'var(--foreground)':(s.id>='S50'&&s.id<='S56'?'var(--viz-series-2)':'var(--viz-series-1)');const radius=mode==='city'?2:(selected?6:relevant?4.5:2.5);const g=el('g',{'data-scene':s.id,'data-tooltip':s.id+' '+s.name});g.append(el('circle',{cx:p[0],cy:p[1],r:radius,fill:color,opacity:relevant||selected?1:.28,stroke:selected?'var(--background)':'none','stroke-width':2}));world.append(g);hit.push({id:s.id,x:p[0],y:p[1]});
+      if(mode!=='city'&&(selected||important.has(s.id))){const name=W<500?s.id+' '+s.name.slice(0,7):s.id+' '+s.name;labels.push({p,name,selected});}
+    }
+    const boxes=[];
+    labels.sort((a,b)=>Number(b.selected)-Number(a.selected));
+    for(const l of labels){const measure=el('text',{x:0,y:0,visibility:'hidden'},l.name);world.append(measure);const len=measure.getComputedTextLength()+5;measure.remove();let placed=false;for(const dy of [-12,20,-29,37]){let x=Math.min(W-len-8,Math.max(8,l.p[0]+9)),y=l.p[1]+dy;if(y<16||y>H-12)continue;const box={x,y:y-12,w:len,h:17};if(boxes.some(b=>box.x<b.x+b.w&&box.x+box.w>b.x&&box.y<b.y+b.h&&box.y+box.h>b.y))continue;world.append(el('text',{x,y,'paint-order':'stroke',stroke:'var(--background)','stroke-width':4,'stroke-linejoin':'round'},l.name));boxes.push(box);placed=true;break;}if(!placed&&l.selected){world.append(el('text',{x:10,y:20},l.name));}}
+    map.dataset.rendered='true';map.dataset.mode=mode;map.dataset.episode=ep;
+  }
+  function updateDetail(){const s=by[active];sel.value=active;const epText=s.eps.length?s.eps.map(n=>'EP'+String(n).padStart(2,'0')).join(' · '):s.id==='S12'?'间章《记录之外》':s.id==='S57'?'2471序章':'系统／特殊空间';$('#wx-detail').innerHTML=`<strong>${esc(s.id+' '+s.name)}</strong><div>${esc(s.detail)}</div><div class="text-small">${esc(epText)} · ${esc(s.kind)}${s.physical?' · r='+s.r.toFixed(2)+' km · 本轮规划坐标':' · 不绘为普通地理体积'}</div>`;}
+  function updateLanes(){const e=D.episodes.find(x=>x.ep===ep);$('#wx-lanes').innerHTML=e?e.routes.map((r,i)=>`<span><span class="wx-linekey" style="background:${series[i%4]}"></span>${esc(r.name)}</span>`).join(''):'已出现地点与本轮补齐地点';}
+  for(const e of D.episodes){const o=document.createElement('option');o.value=e.ep;o.textContent=`EP${String(e.ep).padStart(2,'0')} ${e.title}`;$('#wx-ep').append(o);}$('#wx-ep').value='31';
+  for(const s of D.scenes){const o=document.createElement('option');o.value=s.id;o.textContent=s.id+' '+s.name;sel.append(o);}
+  $('#wx-view').addEventListener('change',e=>{mode=e.target.value;setView();});
+  $('#wx-ep').addEventListener('change',e=>{ep=Number(e.target.value);updateLanes();draw();});
+  sel.addEventListener('change',e=>{active=e.target.value;updateDetail();draw();});
+  $('#wx-cut').addEventListener('change',draw);$('#wx-explode').addEventListener('change',setView);
+  $('#wx-reset').addEventListener('click',setView);
+  $('#wx-focus').addEventListener('click',()=>{const s=by[active];if(!s.physical){updateDetail();return;}focus=xyz(s.a,s.r,s.z);zoom=1;scale=Math.min(W/2.5,H/2.0);yaw=-rad(s.a);pitch=.8;draw();});
+  function schedule(){if(!dirty){dirty=true;requestAnimationFrame(draw);}}
+  map.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,moved:0};map.setPointerCapture(e.pointerId);});
+  map.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.moved+=Math.abs(dx)+Math.abs(dy);yaw+=dx*.006;pitch=Math.max(-1.45,Math.min(1.45,pitch+dy*.006));drag.x=e.clientX;drag.y=e.clientY;schedule();});
+  map.addEventListener('pointerup',e=>{if(drag&&drag.moved<6){const rect=map.getBoundingClientRect(),x=e.clientX-rect.left,y=e.clientY-rect.top;let near=hit.map(h=>({...h,d:Math.hypot(h.x-x,h.y-y)})).sort((a,b)=>a.d-b.d)[0];if(near&&near.d<24){active=near.id;updateDetail();draw();}}drag=null;});
+  map.addEventListener('pointercancel',()=>drag=null);
+  map.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(.4,Math.min(9,zoom*Math.exp(-e.deltaY*.001)));schedule();},{passive:false});
+
+  new ResizeObserver(entries=>{const w=Math.round(entries[0].contentRect.width);if(w&&w!==W){W=w;H=W<500?380:500;setView();}}).observe(root);
+  updateDetail();updateLanes();setView();
+})();
+</script>
+
+
+
+
+
+
+
+
+<noscript>请在浏览器启用JavaScript以查看交互地图。</noscript></body>
+</html>
